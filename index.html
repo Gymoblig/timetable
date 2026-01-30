@@ -369,6 +369,19 @@
             <button onclick="exportSchedule()">Exportovať rozvrh</button>
             <button class="clear" onclick="resetToDefault()">Resetovať na predvolené</button>
         </div>
+        <div class="class-toggles">
+            <h3>Voľba predmetov:</h3>
+            <div class="toggle-group">
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggleDV" onchange="toggleClass('DV')">
+                    <label for="toggleDV">DV (Databázy a vizualizácia)</label>
+                </div>
+                <div class="toggle-item">
+                    <input type="checkbox" id="togglePIOT" onchange="toggleClass('PIOT')">
+                    <label for="togglePIOT">PIOT (Priemyselný IoT)</label>
+                </div>
+            </div>
+        </div>
 
         <div class="main-content">
             <div class="available-classes">
@@ -411,19 +424,7 @@
                 <span>Cvičenia (Presunuteľné)</span>
             </div>
         </div>
-        <div class="class-toggles">
-            <h3>Voľba predmetov:</h3>
-            <div class="toggle-group">
-                <div class="toggle-item">
-                    <input type="checkbox" id="toggleDV" onchange="toggleClass('DV')">
-                    <label for="toggleDV">DV (Databázy a vizualizácia)</label>
-                </div>
-                <div class="toggle-item">
-                    <input type="checkbox" id="togglePIOT" onchange="toggleClass('PIOT')">
-                    <label for="togglePIOT">PIOT (Priemyselný IoT)</label>
-                </div>
-            </div>
-        </div>
+        
 
     </div>
     
