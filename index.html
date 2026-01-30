@@ -862,8 +862,8 @@
             if (!confirm('Ste si istí, že chcete resetovať na predvolené nastavenia?')) return;
             usedClasses.clear();
             enabledClasses = {'DV': false,'PIOT': false,'RRM': true,'SP': true,'UMINT': true};
-            document.getElementById('toggleDV').checked = true;
-            document.getElementById('togglePIOT').checked = true;
+            document.getElementById('toggleDV').checked = false;
+            document.getElementById('togglePIOT').checked = false;
             initializeTimetable();
         }
 
