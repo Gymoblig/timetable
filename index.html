@@ -16,6 +16,12 @@
             padding: 20px;
             background: #f5f5f5;
         }
+        .pdf-export {
+            width: 100%;
+            transform-origin: top left;
+            margin-left: 170px;
+            margin-top: 10px;
+        }
 
         .container {
             max-width: 2000px;
@@ -862,26 +868,32 @@
 
         function exportSchedule() {
             const timetable = document.getElementById('timetable');
+            timetable.classList.add('pdf-export');
 
             const opt = {
-                margin: 10,
-                filename: 'rozvrh.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,          // vyššia kvalita
-                    useCORS: true
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'landscape' // rozvrh vyzerá lepšie naležato
-                }
-            };
 
-            html2pdf()
-                .set(opt)
-                .from(timetable)
-                .save();
+            filename: 'rozvrh.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: {
+                scale: 4,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: timetable.scrollWidth 
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a3', 
+                orientation: 'landscape'
+            }
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(timetable)
+            .save()
+            .then(() => {
+                timetable.classList.remove('pdf-export');
+            });
         }
 
         // Initialize on load
