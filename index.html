@@ -861,29 +861,33 @@
         }
 
         function exportSchedule() {
-            const schedule = {};
-            
-            document.querySelectorAll('td[data-day]').forEach(cell => {
-                const day = cell.dataset.day;
-                const period = cell.dataset.period;
-                const classes = Array.from(cell.querySelectorAll('.placed-class')).map(el => ({
-                    name: el.querySelector('strong').textContent,
-                    locked: el.classList.contains('locked')
-                }));
-                
-                if (classes.length > 0) {
-                    const key = `${day}-${period}`;
-                    schedule[key] = classes;
-                }
-            });
+            const timetable = document.getElementById('timetable');
 
-            console.log('Rozvrh:', schedule);
-            console.log('Aktívne predmety:', enabledClasses);
-            alert('Rozvrh exportovaný do konzoly! (Stlačte F12 pre zobrazenie)');
+            const opt = {
+                margin: 10,
+                filename: 'rozvrh.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,          // vyššia kvalita
+                    useCORS: true
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'landscape' // rozvrh vyzerá lepšie naležato
+                }
+            };
+
+            html2pdf()
+                .set(opt)
+                .from(timetable)
+                .save();
         }
 
         // Initialize on load
         initializeTimetable();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </body>
 </html>
