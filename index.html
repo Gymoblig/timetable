@@ -256,6 +256,7 @@
             color: #0039A6;
             min-width: 100px;
         }
+        
         td.allowed.slot-start {
             border: 2px dashed #0039A6;
             border-right: none;
@@ -317,22 +318,100 @@
             font-size: 11px;
             font-weight: bold;
             margin-top: 2px;
+            padding-right: 20px;
         }
 
         .placed-class .time-info {
             font-size: 10px;
             margin-top: 2px;
             color: #555;
+            padding-right: 20px;
         }
 
         .placed-class.locked .time-info {
             color: #ddd;
         }
 
+        /* ŠÍPKA PRE VÝBER VIACERÝCH MOŽNOSTÍ */
+        .selector-arrow {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            background: #0039A6;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 20;
+            transition: background 0.2s;
+        }
+
+        .selector-arrow:hover {
+            background: #002a7a;
+        }
+
+        .selector-arrow::after {
+            content: "▼";
+            font-size: 12px;
+        }
+
+        /* DROPDOWN MENU */
+        .selector-dropdown {
+            position: absolute;
+            top: 32px;
+            right: 8px;
+            background: white;
+            border: 1px solid #b8d1e0;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            min-width: 200px;
+            max-width: 300px;
+        }
+
+        .selector-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+            
+        }
+
+        .selector-option:last-child {
+            border-bottom: none;
+        }
+
+        .selector-option:hover {
+            background: #e6f0fa;
+        }
+
+        .selector-option .option-teacher {
+            font-weight: bold;
+            color: #0039A6;
+            margin-bottom: 2px;
+        }
+
+        .selector-option .option-room {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .selector-option.active {
+            background: #e6f0fa;
+            border-left: 3px solid #0039A6;
+        }
+
         .placed-class .remove-btn {
             position: absolute;
-            top: 2px;
-            right: 2px;
+            bottom: 8px;
+            right: 8px;
             width: 18px;
             height: 18px;
             background: #d32f2f;
@@ -367,7 +446,6 @@
             box-sizing: border-box;
         }
 
-        
         .placed-class.span-continue {
             position: absolute;
             left: 8px;
@@ -380,12 +458,22 @@
             visibility: visible !important;
         }
 
+        .placed-class.span-continue strong,
+        .placed-class.span-continue .teacher,
+        .placed-class.span-continue .time-info,
+        .placed-class.span-continue .remove-btn,
+        .placed-class.span-continue .selector-arrow,
+        .placed-class.span-continue .selector-dropdown {
+            display: none;
+        }
+
         td {
             border: 1px solid #d0e0ec;
             padding: 0;
             position: relative;
             background: white;
         }
+        
         td.allowed.slot-start + td.allowed.slot-end {
             border-left: none;
         }
@@ -401,10 +489,10 @@
         td:has(.placed-class.span-start) + td:has(.placed-class.span-continue) {
             border-left: none !important;
         }
+        
         td:not(.allowed) {
             border: 1px solid #d0e0ec;
         }
-
 
         .drop-zone {
             min-height: 80px;
@@ -557,16 +645,15 @@
 
         <div id="uploadSection" class="upload-section" onclick="uploadScheduleData()">
             <h2>Nahrať Excel súbor s rozvrhom</h2>
-            
             <p>Kliknite sem pre výber súboru (.xlsx, .xls, .csv)</p>
         </div>
+        
         <div id="videoContainer" align="center">
-                <video src="https://github.com/Gymoblig/timetable/raw/main/video.mp4" controls width="80%">
-                    <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">
+            <video src="https://github.com/Gymoblig/timetable/raw/main/video.mp4" controls width="80%">
+                <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">
                     <img src="https://img.shields.io/badge/▶️-Prehrať%20video-0039A6?style=for-the-badge">
-                    </a>
-                </video>
-                
+                </a>
+            </video>
         </div>
 
         <div id="controls" class="controls" style="display: none;">
@@ -798,10 +885,7 @@
                 if (teacher && teacher !== 'N/A' && teacher !== '') {
                     const nameParts = teacher.trim().split(' ');
                     
-                    // Ak je priezvisko prvé (typické pre slovenské Excel exporty)
-                    // Príklad: "Pajkoš Vladimír" -> "Vladimír Pajkoš"
                     if (nameParts.length >= 2) {
-                        // Predpokladáme formát "Priezvisko Meno"
                         const surname = nameParts[0];
                         const firstName = nameParts.slice(1).join(' ');
                         teacherName = `${firstName} ${surname}`.trim();
@@ -809,7 +893,6 @@
                         teacherName = teacher;
                     }
                     
-                    // Skrátenie ak je príliš dlhé
                     if (teacherName.length > 18) {
                         teacherName = teacherName.substring(0, 16) + '...';
                     }
@@ -851,6 +934,14 @@
                     );
                     
                     if (!slotExists) {
+                        allowedSlots[subjectName].push({
+                            day: mappedDay,
+                            period: period,
+                            teacher: teacherName,
+                            room: roomCode
+                        });
+                    } else {
+                        // Ak už slot existuje, pridáme ako ďalšiu možnosť (pre Telesnú)
                         allowedSlots[subjectName].push({
                             day: mappedDay,
                             period: period,
@@ -1071,6 +1162,8 @@
                 placedClass.dataset.day = day;
                 placedClass.dataset.startPeriod = startPeriod;
                 placedClass.dataset.id = classData.id;
+                placedClass.dataset.teacher = classData.teacher || '';
+                placedClass.dataset.room = classData.code || '';
                 
                 if (i === 0) {
                     placedClass.innerHTML = `
@@ -1080,9 +1173,129 @@
                         <div class="time-info">${timeRange}</div>
                         ${!classData.locked ? '<button class="remove-btn" onclick="removeClass(this, \'' + classData.subjectName + '\')">×</button>' : ''}
                     `;
+                    
+                    // Pridáme šípku pre výber ak má predmet viacero možností v tomto čase
+                    const options = getAllOptionsForSlot(classData.subjectName, day, startPeriod);
+                    if (options.length > 1) {
+                        const arrow = document.createElement('div');
+                        arrow.className = 'selector-arrow';
+                        arrow.onclick = function(e) {
+                            e.stopPropagation();
+                            toggleSelectorDropdown(this, classData.subjectName, day, startPeriod, classData.id);
+                        };
+                        placedClass.appendChild(arrow);
+                    }
                 }
 
                 cellContent.appendChild(placedClass);
+            }
+        }
+
+        // Získa všetky možnosti pre daný predmet, deň a čas
+        function getAllOptionsForSlot(subjectName, day, period) {
+            return allowedSlots[subjectName]?.filter(slot => 
+                slot.day === day && slot.period === period
+            ) || [];
+        }
+
+        // Prepína dropdown menu - TERAZ JE ÚPLNE NAVRCHU STRÁNKY
+        function toggleSelectorDropdown(arrowElement, subjectName, day, period, instanceId) {
+                // Zatvoríme všetky ostatné dropdowny
+                document.querySelectorAll('.selector-dropdown').forEach(d => d.remove());
+                
+                // Ak už dropdown existuje, len ho zatvoríme
+                const existingDropdown = arrowElement.parentElement.querySelector('.selector-dropdown');
+                if (existingDropdown) {
+                    existingDropdown.remove();
+                    return;
+                }
+                
+                const options = getAllOptionsForSlot(subjectName, day, period);
+                if (options.length <= 1) return;
+                
+                // VYTVORÍME DROPDOWN V BODY, NIE V TABUĽKE
+                const dropdown = document.createElement('div');
+                dropdown.className = 'selector-dropdown';
+                
+                // ZISTÍME POZÍCIU ŠÍPKY
+                const rect = arrowElement.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                
+                // NASTAVÍME POZÍCIU DROPDOWNU - ABSOLÚTNE VOČI BODY
+                dropdown.style.position = 'absolute';
+                dropdown.style.top = (rect.bottom + scrollTop) + 'px';
+                dropdown.style.left = (rect.left + scrollLeft - 220 + rect.width) + 'px'; // 220px je šírka dropdownu
+                dropdown.style.zIndex = '999999';
+                
+                // ZISTÍME AKTUÁLNEHO UČITEĽA
+                const placedClass = arrowElement.closest('.placed-class');
+                const currentTeacher = placedClass ? placedClass.dataset.teacher : '';
+                
+                options.forEach((option, index) => {
+                    const isActive = option.teacher === currentTeacher;
+                    
+                    const optionEl = document.createElement('div');
+                    optionEl.className = `selector-option ${isActive ? 'active' : ''}`;
+                    optionEl.innerHTML = `
+                        <div class="option-teacher">${option.teacher || 'N/A'}</div>
+                        <div class="option-room">${option.room || 'N/A'}</div>
+                    `;
+                    
+                    optionEl.onclick = function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        switchClassOption(subjectName, day, period, instanceId, option);
+                        dropdown.remove();
+                    };
+                    
+                    dropdown.appendChild(optionEl);
+                });
+                
+                // PRIDÁME DROPDOWN DO BODY
+                document.body.appendChild(dropdown);
+                
+                // ZATVORENIE DROPDOWNU PRI KLIKNUTÍ MIMO
+                function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== arrowElement) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                }
+                
+                // ONESKORENIE PRE ZABRÁNENIE OKAMŽITÉHO ZATVORENIA
+                setTimeout(() => {
+                    document.addEventListener('click', closeDropdown);
+                }, 100);
+                
+                // ZABRÁNIME ŠÍRENIU UDALOSTI
+                dropdown.onclick = function(e) {
+                    e.stopPropagation();
+                };
+            }
+
+        // Prepne na inú možnosť
+        function switchClassOption(subjectName, day, period, instanceId, newOption) {
+            // Nájdeme všetky časti tohto bloku
+            const startCell = document.querySelector(`td[data-day="${day}"][data-period="${period}"]`);
+            const endCell = document.querySelector(`td[data-day="${day}"][data-period="${period + 1}"]`);
+            
+            if (!startCell || !endCell) return;
+            
+            const startElement = startCell.querySelector(`.placed-class[data-id="${instanceId}"]`);
+            const endElement = endCell.querySelector(`.placed-class[data-id="${instanceId}"]`);
+            
+            if (startElement) {
+                // Aktualizujeme učiteľa a miestnosť
+                startElement.dataset.teacher = newOption.teacher;
+                startElement.dataset.room = newOption.room;
+                
+                // Aktualizujeme zobrazený text
+                const teacherDiv = startElement.querySelector('.teacher');
+                if (teacherDiv) teacherDiv.textContent = newOption.teacher;
+                
+                const roomDiv = startElement.querySelector('.time-info:first-of-type');
+                if (roomDiv) roomDiv.textContent = newOption.room;
             }
         }
 
@@ -1107,7 +1320,6 @@
                 const targetPeriod = parseInt(this.dataset.period);
                 const sourceId = e.dataTransfer.getData('sourceId');
                 
-                // 1. DYNAMICKÉ URČENIE ZAČIATKU PODĽA EXCEL DÁT
                 const allowed = allowedSlots[subjectName] || [];
                 let startPeriod = null;
                 
@@ -1115,24 +1327,20 @@
                     if (slot.day === targetDay && 
                         (targetPeriod === slot.period || targetPeriod === slot.period + 1)) {
                         startPeriod = slot.period;
-                        console.log(`✅ Nájdený blok: ${subjectName} na ${targetDay} ${targetPeriod} → začína ${startPeriod}`);
                         break;
                     }
                 }
                 
                 if (startPeriod === null) {
-                    console.log(`❌ Nepovolený termín: ${subjectName} na ${targetDay} ${targetPeriod}`);
                     alert('Tento termín nie je povolený pre vybraný predmet.');
                     return;
                 }
                 
-                // 2. KONTROLA PREDMETU
                 if (!subjects[subjectName] || enabledSubjects[subjectName] === false) {
                     alert(`Predmet "${subjectName}" je vypnutý.`);
                     return;
                 }
                 
-                // 3. KONTROLA VOĽNOSTI BLOKU
                 const startCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod}"]`);
                 const endCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod + 1}"]`);
                 
@@ -1156,15 +1364,33 @@
                     return;
                 }
                 
-                // 4. ODSTRÁNENIE STARÉHO UMIESTNENIA
+                // Zoberieme prvú dostupnú možnosť
+                const availableOptions = allowedSlots[subjectName].filter(slot => 
+                    slot.day === targetDay && slot.period === startPeriod
+                );
+                
+                if (availableOptions.length === 0) {
+                    alert('Žiadne dostupné možnosti pre tento termín!');
+                    return;
+                }
+                
+                // Vyberieme prvú možnosť (alebo ak presúvame, zachováme pôvodnú)
+                let selectedOption = availableOptions[0];
+                if (sourceId) {
+                    const oldElement = document.querySelector(`.placed-class[data-id="${sourceId}"]`);
+                    if (oldElement) {
+                        const oldTeacher = oldElement.dataset.teacher;
+                        const oldMatch = availableOptions.find(o => o.teacher === oldTeacher);
+                        if (oldMatch) selectedOption = oldMatch;
+                    }
+                }
+                
                 if (sourceId) {
                     document.querySelectorAll(`.placed-class[data-id="${sourceId}"]`).forEach(el => el.remove());
                 } else {
                     usedSubjects.add(subjectName);
                 }
                 
-                // 5. UMIESTNENIE DO BLOKU
-                const slotInfo = allowed.find(s => s.day === targetDay && s.period === startPeriod) || {};
                 const newId = sourceId || `${subjectName}-${Date.now()}`;
                 
                 for (let i = 0; i < 2; i++) {
@@ -1182,11 +1408,21 @@
                         placedClass.classList.add('span-start');
                         placedClass.innerHTML = `
                             <strong>${subjectName}</strong>
-                            <div class="teacher">${slotInfo.teacher || subjects[subjectName].teacher}</div>
-                            <div class="time-info">${slotInfo.room || ''}</div>
-                            <div class="time-info">${formatTimeRange(startPeriod)}</div>
+                            <div class="teacher">${selectedOption.teacher || subjects[subjectName].teacher}</div>
+                            <div class="time-info">${selectedOption.room || ''}</div>
                             <button class="remove-btn" onclick="removeClass(this, '${subjectName}')">×</button>
                         `;
+                        
+                        // Pridáme šípku ak je viac možností
+                        if (availableOptions.length > 1) {
+                            const arrow = document.createElement('div');
+                            arrow.className = 'selector-arrow';
+                            arrow.onclick = function(e) {
+                                e.stopPropagation();
+                                toggleSelectorDropdown(this, subjectName, targetDay, startPeriod, newId);
+                            };
+                            placedClass.appendChild(arrow);
+                        }
                     } else {
                         placedClass.classList.add('span-continue');
                         placedClass.innerHTML = '&nbsp;';
@@ -1198,6 +1434,8 @@
                     placedClass.dataset.day = targetDay;
                     placedClass.dataset.startPeriod = startPeriod;
                     placedClass.dataset.id = newId;
+                    placedClass.dataset.teacher = selectedOption.teacher || '';
+                    placedClass.dataset.room = selectedOption.room || '';
                     
                     placedClass.draggable = true;
                     placedClass.addEventListener('dragstart', function(e) {
@@ -1245,13 +1483,11 @@
         function highlightAllowedSlots(subjectName) {
             const allowed = allowedSlots[subjectName] || [];
             
-            // Najprv VŠETKY bunky označíme ako not-allowed
             document.querySelectorAll('td[data-day]').forEach(cell => {
                 cell.classList.remove('allowed', 'not-allowed', 'slot-start', 'slot-end');
                 cell.classList.add('not-allowed');
             });
             
-            // Pre každý povolený blok zvýrazníme OBE bunky
             allowed.forEach(slot => {
                 const startCell = document.querySelector(`td[data-day="${slot.day}"][data-period="${slot.period}"]`);
                 const endCell = document.querySelector(`td[data-day="${slot.day}"][data-period="${slot.period + 1}"]`);
