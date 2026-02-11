@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interaktívny rozvrh hodín</title>
+    <title>Interaktívny rozvrh FEI STU</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +16,7 @@
             padding: 20px;
             background: #f5f5f5;
         }
+        
         .pdf-export {
             width: 100%;
             transform-origin: top left;
@@ -50,18 +51,48 @@
             margin: 0;
             color: #0039A6;
             flex: 1;
+            font-weight: 500;
+        }
+
+        .upload-section {
+            margin-bottom: 20px;
+            padding: 30px;
+            background: #0039A6;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-section:hover {
+            background: #002a7a;
+        }
+
+        .upload-section h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .upload-section p {
+            font-size: 16px;
+            opacity: 0.9;
         }
 
         .controls {
             margin-bottom: 20px;
             padding: 15px;
-            background: #f9f9f9;
+            background: #f0f5fa;
             border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #b8d1e0;
         }
 
         .controls button {
             padding: 8px 16px;
-            margin-right: 10px;
             background: #0039A6;
             color: white;
             border: none;
@@ -71,52 +102,15 @@
         }
 
         .controls button:hover {
-            background: #002f85;
+            background: #002a7a;
         }
 
         .controls button.clear {
-            background: #f44336;
+            background: #d32f2f;
         }
 
         .controls button.clear:hover {
-            background: #da190b;
-        }
-
-        .class-toggles {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #e3f2fd;
-            border-radius: 4px;
-            border: 2px solid #0039A6;
-        }
-
-        .class-toggles h3 {
-            margin-bottom: 10px;
-            color: #0039A6;
-        }
-
-        .toggle-group {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .toggle-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toggle-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .toggle-item label {
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
+            background: #b71c1c;
         }
 
         .main-content {
@@ -125,48 +119,98 @@
         }
 
         .available-classes {
-            flex: 0 0 250px;
-            background: #f9f9f9;
+            flex: 0 0 280px;
+            background: #f5f9ff;
             padding: 15px;
             border-radius: 4px;
             max-height: 800px;
             overflow-y: auto;
+            border: 1px solid #b8d1e0;
         }
 
         .available-classes h3 {
             margin-bottom: 15px;
-            color: #333;
+            color: #0039A6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .class-counter {
+            display: inline-block;
+            background: #0039A6;
+            color: white;
+            border-radius: 4px;
+            width: 30px;
+            height: 24px;
+            font-size: 13px;
+            text-align: center;
+            line-height: 24px;
         }
 
         .class-item {
-            padding: 8px 12px;
+            padding: 12px;
             margin-bottom: 8px;
             background: white;
-            border: 2px solid #ddd;
+            border: 1px solid #b8d1e0;
+            border-left: 6px solid #0039A6;
             border-radius: 4px;
-            cursor: move;
-            font-size: 12px;
+            cursor: grab;
+            font-size: 13px;
             transition: all 0.2s;
+            position: relative;
         }
 
         .class-item:hover {
             border-color: #0039A6;
-            transform: translateX(5px);
+            transform: translateX(3px);
+            box-shadow: 0 2px 8px rgba(0,57,166,0.1);
+        }
+
+        .class-item:active {
+            cursor: grabbing;
         }
 
         .class-item.dragging {
             opacity: 0.5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .class-item.used {
-            opacity: 0.3;
+            opacity: 0.5;
             cursor: not-allowed;
+            background: #f5f5f5;
+            border-style: dashed;
         }
 
-        .class-item.disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-            background: #f0f0f0;
+        .class-item.used:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .class-item .teacher {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .class-item .room {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .used-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #d32f2f;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
         }
 
         .timetable-wrapper {
@@ -178,84 +222,125 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
+            border: 1px solid #b8d1e0;
         }
 
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #d0e0ec;
             padding: 8px;
             text-align: center;
             min-width: 100px;
-            
         }
 
         th {
             background: #0039A6;
             color: white;
-            font-weight: bold;
+            font-weight: 500;
             position: sticky;
             top: 0;
             z-index: 10;
+            font-size: 14px;
+        }
 
+        th small {
+            font-size: 11px;
+            opacity: 0.9;
+            display: block;
+            margin-top: 2px;
+            font-weight: normal;
         }
 
         td.day-label {
-            background: #e3f2fd;
+            background: #e1ecf4;
             font-weight: bold;
             color: #0039A6;
+            min-width: 100px;
+        }
+        td.allowed.slot-start {
+            border: 2px dashed #0039A6;
+            border-right: none;
         }
 
-        td.time-slot {
-            font-size: 11px;
-            background: #f1f1f1;
-    
+        td.allowed.slot-end {
+            border: 2px dashed #0039A6;
+            border-left: none;
         }
 
         .cell-content {
-            min-height: 60px;
+            min-height: 80px;
             display: flex;
             flex-direction: column;
             gap: 4px;
             padding: 4px;
+            position: relative;
         }
 
         .placed-class {
-            padding: 6px;
+            padding: 8px;
             border-radius: 4px;
             font-size: 11px;
-            border: 2px solid #0039A6;
-            background: white;
+            background: #e6f0fa;
+            border-left: 6px solid #0039A6;
             position: relative;
-            cursor: move;
             display: flex;
             flex-direction: column;
-            
+            text-align: left;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: grab;
+        }
+
+        .placed-class:active {
+            cursor: grabbing;
+        }
+
+        .placed-class.dragging {
+            opacity: 0.5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .placed-class.locked {
-            background: #ffcdd2;
-            border-color: #e91e63;
+            background: #0039A6;
+            color: white;
+            border-left: 6px solid #001a4d;
             cursor: not-allowed;
         }
 
+        .placed-class.locked:active {
+            cursor: not-allowed;
+        }
+
+        .placed-class.locked .teacher {
+            color: #f0f0f0;
+        }
+
         .placed-class .teacher {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
-            color: #333;
             margin-top: 2px;
+        }
+
+        .placed-class .time-info {
+            font-size: 10px;
+            margin-top: 2px;
+            color: #555;
+        }
+
+        .placed-class.locked .time-info {
+            color: #ddd;
         }
 
         .placed-class .remove-btn {
             position: absolute;
             top: 2px;
             right: 2px;
-            width: 16px;
-            height: 16px;
-            background: #f44336;
+            width: 18px;
+            height: 18px;
+            background: #d32f2f;
             color: white;
             border: none;
-            border-radius: 50%;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 12px;
             line-height: 1;
             display: none;
         }
@@ -271,31 +356,65 @@
         .placed-class.span-start {
             position: absolute;
             left: 8px;
-            right: calc(-100% - 1px);
+            right: 8px;
             top: 8px;
-            width: calc(200% + 1px);
+            width: calc(200% - 16px);
             z-index: 10;
+            background: #e6f0fa;
+            border-left: 6px solid #0039A6;
+            border-radius: 4px;
+            padding: 8px;
+            box-sizing: border-box;
         }
+
         
         .placed-class.span-continue {
-            visibility: hidden;
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 8px;
+            width: calc(100% - 16px);
+            background: #e6f0fa !important;
+            border-left: 6px solid #0039A6 !important;
+            border-radius: 4px;
+            visibility: visible !important;
         }
 
         td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            min-width: 80px;
+            border: 1px solid #d0e0ec;
+            padding: 0;
             position: relative;
+            background: white;
+        }
+        td.allowed.slot-start + td.allowed.slot-end {
+            border-left: none;
         }
 
+        td:has(.placed-class.span-start) {
+            border-right: none !important;
+        }
+
+        td:has(.placed-class.span-continue) {
+            border-left: none !important;
+        }
+
+        td:has(.placed-class.span-start) + td:has(.placed-class.span-continue) {
+            border-left: none !important;
+        }
+        td:not(.allowed) {
+            border: 1px solid #d0e0ec;
+        }
+
+
         .drop-zone {
-            min-height: 60px;
+            min-height: 80px;
             border: 2px dashed transparent;
+            transition: background 0.1s;
         }
 
         .drop-zone.allowed {
-            background: #e3f2fd;
+            background: #e6f0fa;
+            border: 2px dashed #0039A6;
         }
 
         .drop-zone.not-allowed {
@@ -305,39 +424,112 @@
 
         .drop-zone.drag-over {
             border-color: #0039A6;
-            background: #bbdefb;
+            background: #c0d9f0;
+            border-style: solid;
         }
 
         .drop-zone.drag-over.not-allowed {
-            border-color: #f44336;
+            border-color: #d32f2f;
             background: #ffcdd2;
         }
 
         .legend {
             margin-top: 20px;
-            padding: 10px;
-            background: #f9f9f9;
+            padding: 15px;
+            background: #f5f9ff;
             border-radius: 4px;
+            border: 1px solid #b8d1e0;
         }
 
         .legend-item {
             display: inline-block;
-            margin-right: 20px;
-            font-size: 14px;
+            margin-right: 30px;
+            font-size: 13px;
         }
 
         .legend-box {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #333;
-            margin-right: 5px;
+            width: 24px;
+            height: 18px;
+            border-left: 6px solid;
+            margin-right: 8px;
             vertical-align: middle;
         }
 
         .legend-box.locked {
-            background: #ffcdd2;
-            border-color: #e91e63;
+            background: #0039A6;
+            border-left-color: #001a4d;
+        }
+
+        .legend-box.exercise {
+            background: #e6f0fa;
+            border-left-color: #0039A6;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-style: italic;
+            background: #f9f9f9;
+            border: 1px dashed #b8d1e0;
+        }
+
+        .stats {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #b8d1e0;
+            font-size: 12px;
+            color: #0039A6;
+        }
+
+        .stats span {
+            font-weight: bold;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f9ff;
+            border-radius: 4px;
+            border: 1px solid #b8d1e0;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 12px;
+            color: #0039A6;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #b8d1e0;
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #0039A6;
+        }
+
+        .filter-item label {
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
         }
     </style>
 </head>
@@ -360,37 +552,38 @@
                 <path d="M79.3 18.0393C79.2 18.0393 79.1 18.1396 79.1 18.24V30.1798C79.1 30.2801 79.2 30.3804 79.3 30.3804H80.7C80.8 30.3804 80.9 30.2801 80.9 30.1798V18.24C80.9 18.1396 80.8 18.0393 80.7 18.0393H79.3ZM67.9 19.6446C67.9 19.5443 67.9 19.5443 68 19.5443H72.9C73 19.5443 73.1 19.444 73.1 19.3436V18.24C73.1 18.1396 73 18.0393 72.9 18.0393H66.3C66.2 18.0393 66.1 18.1396 66.1 18.24V30.1798C66.1 30.2801 66.2 30.3804 66.3 30.3804H72.9C73 30.3804 73.1 30.2801 73.1 30.1798V29.0761C73.1 28.9758 73 28.8754 72.9 28.8754H68C67.9 28.8754 67.9 28.7751 67.9 28.7751V24.862H71.9C72 24.862 72.1 24.7617 72.1 24.6614V23.5577C72.1 23.4574 72 23.357 71.9 23.357H67.9V19.6446ZM55.6 19.6446C55.6 19.5443 55.7 19.5443 55.7 19.5443H60.5C60.6 19.5443 60.7 19.444 60.7 19.3436V18.24C60.7 18.1396 60.6 18.0393 60.5 18.0393H54.1C54 18.0393 53.9 18.1396 53.9 18.24V30.1798C53.9 30.2801 54 30.3804 54.1 30.3804H55.5C55.6 30.3804 55.7 30.2801 55.7 30.1798V24.862H59.5C59.6 24.862 59.7 24.7617 59.7 24.6614V23.5577C59.7 23.4574 59.6 23.357 59.5 23.357H55.7V19.6446H55.6Z" fill="black"/>
                 <path d="M90.8 0.882045C90.8 0.681376 90.7 0.681363 90.6 0.681363H88.3C88.2 0.681363 88.1 0.78171 88.1 0.882045V9.10945C88.1 10.3135 87.4 10.9155 86.1 10.9155C84.8 10.9155 84.1 10.3135 84.1 9.10945V0.882045C84.1 0.681376 84 0.681363 83.9 0.681363H81.6C81.4 0.681363 81.4 0.78171 81.4 0.882045V9.20979C81.4 11.6178 82.7 13.1228 86.1 13.1228C89.4 13.1228 90.8 11.6178 90.8 9.20979V0.882045ZM72.3 13.0225C72.5 13.0225 72.5 12.9222 72.5 12.8218V3.08938C72.5 2.98905 72.5 2.98907 72.6 2.98907H75.5C75.6 2.98907 75.7 2.88873 75.7 2.78839V1.0827C75.7 0.882026 75.6 0.882045 75.5 0.882045H66.8C66.6 0.882045 66.6 0.982361 66.6 1.0827V2.78839C66.6 2.98906 66.7 2.98907 66.8 2.98907H69.6C69.7 2.98907 69.7 3.08938 69.7 3.08938V12.8218C69.7 13.0225 69.8 13.0225 69.9 13.0225H72.3ZM53.5 12.4205C54.7 13.0225 55.8 13.1228 57.2 13.1228C59.8 13.1228 61.5 11.8185 61.5 9.41047C61.5 7.70479 60.7 6.6011 58.6 5.69809C56.8 4.99575 56.5 4.59443 56.5 3.99242C56.5 3.29008 57 2.78839 58.1 2.78839C58.9 2.78839 59.6 2.88872 60.2 3.18973C60.4 3.29006 60.5 3.18972 60.5 3.08938L61.3 1.48406C61.4 1.38372 61.4 1.28337 61.2 1.18304C60 0.681363 59.2 0.480713 57.6 0.480713C55.1 0.480713 53.6 1.98573 53.6 3.99242C53.6 5.79844 54.5 6.90211 56.6 7.80512C58.2 8.50746 58.6 8.90878 58.6 9.61112C58.6 10.3135 58 10.8152 57 10.8152C55.8 10.8152 55.2 10.6145 54.5 10.2131C54.4 10.1128 54.3 10.2131 54.2 10.3135L53.4 12.1195C53.4 12.3202 53.4 12.3202 53.5 12.4205Z" fill="black"/>
             </svg>
-            <h1>Interaktívny rozvrh hodín</h1>
+            <h1>Interaktívny rozvrh FEI STU</h1>
         </div>
 
-        
-        <div class="controls">
-            <button onclick="clearMovableClasses()">Vymazať všetky presunuteľné hodiny</button>
-            <button onclick="exportSchedule()">Exportovať rozvrh</button>
-            <button class="clear" onclick="resetToDefault()">Resetovať na predvolené</button>
-        </div>
-        <div class="class-toggles">
-            <h3>Voľba predmetov:</h3>
-            <div class="toggle-group">
-                <div class="toggle-item">
-                    <input type="checkbox" id="toggleDV" onchange="toggleClass('DV')">
-                    <label for="toggleDV">DV (Databázy a vizualizácia)</label>
-                </div>
-                <div class="toggle-item">
-                    <input type="checkbox" id="togglePIOT" onchange="toggleClass('PIOT')">
-                    <label for="togglePIOT">PIOT (Priemyselný IoT)</label>
-                </div>
-                <div class="toggle-item">
-                    <input type="checkbox" id="toggleOPK" onchange="toggleClass('OPK')">
-                    <label for="toggleOPK">OPK (Objektovo orientované programovanie v kybernetike)</label>
-                </div>
-            </div>
+        <div id="uploadSection" class="upload-section" onclick="uploadScheduleData()">
+            <h2>Nahrať Excel súbor s rozvrhom</h2>
+            <p>Kliknite sem pre výber súboru (.xlsx, .xls, .csv)</p>
         </div>
 
-        <div class="main-content">
+        <div id="controls" class="controls" style="display: none;">
+            <button onclick="enableAllSubjects()">Povoliť všetky predmety</button>
+            <button onclick="clearMovableClasses()">Vymazať všetky cvičenia</button>
+            <button onclick="exportSchedule()">Exportovať PDF</button>
+            <button class="clear" onclick="resetSchedule()">Resetovať</button>
+        </div>
+
+        <div id="filterSection" class="filter-section" style="display: none;">
+            <h3>Filter predmetov</h3>
+            <div id="filterGroup" class="filter-group"></div>
+        </div>
+
+        <div id="mainContent" class="main-content" style="display: none;">
             <div class="available-classes">
-                <h3>Dostupné hodiny</h3>
+                <h3>
+                    <span>Dostupné cvičenia</span>
+                    <span id="subjectCount" class="class-counter">0</span>
+                </h3>
+                <div id="stats" class="stats"></div>
                 <div id="classList"></div>
+                <div id="noSubjects" class="no-data" style="display: none;">
+                    Žiadne dostupné cvičenia.<br>
+                    Nahrajte Excel súbor pre načítanie rozvrhu.
+                </div>
             </div>
 
             <div class="timetable-wrapper">
@@ -398,215 +591,327 @@
                     <thead>
                         <tr>
                             <th>DEŇ</th>
-                            <th>1<br><small>7:00-7:50</small></th>
-                            <th>2<br><small>8:00-8:50</small></th>
-                            <th>3<br><small>9:00-9:50</small></th>
-                            <th>4<br><small>10:00-10:50</small></th>
-                            <th>5<br><small>11:00-11:50</small></th>
-                            <th>6<br><small>12:00-12:50</small></th>
-                            <th>7<br><small>13:00-13:50</small></th>
-                            <th>8<br><small>14:00-14:50</small></th>
-                            <th>9<br><small>15:00-15:50</small></th>
-                            <th>10<br><small>16:00-16:50</small></th>
-                            <th>11<br><small>17:00-17:50</small></th>
-                            <th>12<br><small>18:00-18:50</small></th>
+                            <th>1<br><small>7:00 - 8:50</small></th>
+                            <th>2<br><small>8:00 - 8:50</small></th>
+                            <th>3<br><small>9:00 - 10:50</small></th>
+                            <th>4<br><small>10:00 - 10:50</small></th>
+                            <th>5<br><small>11:00 - 12:50</small></th>
+                            <th>6<br><small>12:00 - 12:50</small></th>
+                            <th>7<br><small>13:00 - 14:50</small></th>
+                            <th>8<br><small>14:00 - 14:50</small></th>
+                            <th>9<br><small>15:00 - 16:50</small></th>
+                            <th>10<br><small>16:00 - 16:50</small></th>
+                            <th>11<br><small>17:00 - 18:50</small></th>
+                            <th>12<br><small>18:00 - 18:50</small></th>
                         </tr>
                     </thead>
-                    <tbody id="timetableBody">
-                    </tbody>
+                    <tbody id="timetableBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="legend">
+        <div id="legend" class="legend" style="display: none;">
             <div class="legend-item">
                 <span class="legend-box locked"></span>
-                <span>Prednášky (Nemožno presunúť)</span>
+                <span>Prednáška (pevne umiestnená)</span>
             </div>
             <div class="legend-item">
-                <span class="legend-box"></span>
-                <span>Cvičenia (Presunuteľné)</span>
+                <span class="legend-box exercise"></span>
+                <span>Cvičenie (možno presunúť)</span>
             </div>
         </div>
-        
-
     </div>
     
     <script>
+        // ============= FEI STU DRAG AND DROP SYSTEM =============
+        
         const days = ['PONDELOK', 'UTOROK', 'STREDA', 'ŠTVRTOK', 'PIATOK'];
         const periods = 12;
-
-        // Track which classes are enabled
-        let enabledClasses = {
-            'DV': false,
-            'PIOT': false,
-            'RRM': true,
-            'SP': true,
-            'UMINT': true,
-            'PE': true,
-            'OPK': false
-            
+        
+        const dayMapping = {
+            'Po': 'PONDELOK', 'Ut': 'UTOROK', 'St': 'STREDA', 'Št': 'ŠTVRTOK', 'Pi': 'PIATOK',
+            'po': 'PONDELOK', 'ut': 'UTOROK', 'st': 'STREDA', 'št': 'ŠTVRTOK', 'pi': 'PIATOK',
+            'PONDELOK': 'PONDELOK', 'UTOROK': 'UTOROK', 'STREDA': 'STREDA', 'ŠTVRTOK': 'ŠTVRTOK', 'PIATOK': 'PIATOK'
         };
 
-        // Define all classes
-        const availableClasses = [
-            { id: 'RRM-1', name: 'RRM', teacher: 'BABINEC', code: '79/7 D619', locked: false, duration: 2, type: 'RRM' },
-            { id: 'SP-1', name: 'SP', teacher: 'MIKLOVIČOVÁ', code: '75/8 D301', locked: false, duration: 2, type: 'SP' },
-            { id: 'UMINT-1', name: 'UMINT', teacher: 'SEKAJ', code: '70/7(4) D712/D710', locked: false, duration: 2, type: 'UMINT' },
-            { id: 'PE-1', name: 'TELESNÁ KULTÚRA', teacher: 'N/A', code: 'N/A', locked: false, duration: 2, type: 'PE' },
-            { id: 'DV-1', name: 'DV', teacher: 'KÖRÖSI', code: '5/1 D301', locked: false, duration: 2, type: 'DV' },
-            { id: 'PIOT-1', name: 'PIOT', teacher: 'MRAFKO', code: '60/6 D328', locked: false, duration: 2, type: 'PIOT' },
-            { id: 'OPK-1', name: 'OPK', teacher: 'TÖLGYESSY', code: 'N/A', locked: false, duration: 2, type: 'OPK' }
-        ];
+        // FEI STU farby
+        const FEI_BLUE = '#0039A6';
+        const FEI_LIGHT_BLUE = '#e6f0fa';
+        const FEI_DARK_BLUE = '#001a4d';
 
-        function getLockedSchedule() {
-            const schedule = {
-                'PONDELOK-4': [{ name: 'SP', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
-                'UTOROK-4': [{ name: 'UMINT', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
-                'ŠTVRTOK-4': [{ name: 'RRM', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
-            };
+        // Data structures
+        let subjects = {};
+        let allowedSlots = {};
+        let lockedLectures = [];
+        let usedSubjects = new Set();
+        let enabledSubjects = {};
+        let draggedItem = null;
 
-            // ✅ Najprv všetky tri
-            if (enabledClasses['DV'] && enabledClasses['PIOT'] && enabledClasses['OPK']) {
-                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
-                schedule['PONDELOK-7'] = [{ name: 'DV/PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
+        function convertTimeToPeriod(time) {
+            if (time === undefined || time === null) return 0;
+            
+            let numTime;
+            if (typeof time === 'string') {
+                time = time.replace(',', '.').trim();
+                if (time.includes(':')) {
+                    const parts = time.split(':');
+                    numTime = parseFloat(parts[0]) + parseFloat(parts[1])/60;
+                } else {
+                    numTime = parseFloat(time);
+                }
+            } else {
+                numTime = time;
             }
-
-            // DV + PIOT
-            else if (enabledClasses['DV'] && enabledClasses['PIOT']) {
-                schedule['PONDELOK-7'] = [{ name: 'DV/PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            }
-
-            // DV + OPK
-            else if (enabledClasses['DV'] && enabledClasses['OPK']) {
-                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
-                schedule['PONDELOK-7'] = [{ name: 'DV', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            }
-
-            // OPK + PIOT
-            else if (enabledClasses['OPK'] && enabledClasses['PIOT']) {
-                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
-                schedule['PONDELOK-7'] = [{ name: 'PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            }
-
-            // Len DV
-            else if (enabledClasses['DV']) {
-                schedule['PONDELOK-7'] = [{ name: 'DV', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            }
-
-            // Len PIOT
-            else if (enabledClasses['PIOT']) {
-                schedule['PONDELOK-7'] = [{ name: 'PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            }
-
-            // Len OPK
-            else if (enabledClasses['OPK']) {
-                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
-            }
-
-            return schedule;
+            
+            const timeMap = {7:1, 8:2, 9:3, 10:4, 11:5, 12:6, 13:7, 14:8, 15:9, 16:10, 17:11, 18:12};
+            return timeMap[Math.floor(numTime)] || 0;
         }
 
+        function formatTimeRange(period) {
+            const startHour = 6 + period;
+            const endHour = startHour + 1;
+            return `${startHour}:00 - ${endHour}:50`;
+        }
 
-        const allowedSlots = {
-            'RRM-1': [
-                ['UTOROK', 2, 3],
-                ['UTOROK', 7, 8],
-                ['UTOROK', 9, 10],
-                ['STREDA', 2, 3],
-                ['STREDA', 4, 5],
-                ['STREDA', 7, 8],
-                ['STREDA', 9, 10]
-            ],
-            'SP-1': [
-                ['UTOROK', 7, 8],
-                ['UTOROK', 9, 10],
-                ['STREDA', 2, 3],
-                ['STREDA', 4, 5],
-                ['STREDA', 7, 8],
-                ['STREDA', 9, 10],
-                ['ŠTVRTOK', 7, 8],
-                ['ŠTVRTOK', 9, 10]
-            ],
-            'UMINT-1': [
-                ['UTOROK', 9, 10],
-                ['STREDA', 7, 8],
-                ['STREDA', 9, 10],
-                ['STREDA', 11, 12],
-                ['ŠTVRTOK', 4, 5],
-                ['PIATOK', 2, 3],
-                ['PIATOK', 4, 5],
-                ['PIATOK', 6, 7],
-            ],
-            'DV-1': [
-                ['PONDELOK', 9, 10]
-            ],
-            'PIOT-1': [
-                ['UTOROK', 7, 8],
-                ['UTOROK', 9, 10],
-                ['UTOROK', 11, 12],
-                ['STREDA', 2, 3],
-                ['STREDA', 4, 5],
-                ['STREDA', 7, 8]
-            ],
-            'OPK-1': [
-                ['STREDA', 4, 5],
-                ['STREDA', 7, 8],
-                ['ŠTVRTOK', 4, 5],
-                ['ŠTVRTOK', 7, 8],
-                ['ŠTVRTOK', 9, 10]
-            ],
-            'PE-1': [
-                ['PONDELOK', 1, 2],
-                ['PONDELOK', 3, 4],
-                ['PONDELOK', 5, 6],
-                ['PONDELOK', 7, 8],
-                ['PONDELOK', 9, 10],
-                ['UTOROK', 1, 2],
-                ['UTOROK', 3, 4],
-                ['UTOROK', 5, 6],
-                ['UTOROK', 7, 8],
-                ['STREDA', 1, 2],
-                ['STREDA', 3, 4],
-                ['STREDA', 5, 6],
-                ['STREDA', 7, 8],
-                ['ŠTVRTOK', 1, 2],
-                ['ŠTVRTOK', 3, 4],
-                ['ŠTVRTOK', 5, 6],
-                ['ŠTVRTOK', 7, 8]
-            ]
-        };
+        function extractSubjectName(fullSubject) {
+            if (!fullSubject) return 'Neznámy predmet';
+            let name = fullSubject;
+            if (name.includes('(')) name = name.split('(')[0].trim();
+            name = name.replace(/\s+\d+$/, '');
+            return name.trim() || 'Neznámy predmet';
+        }
 
-        let usedClasses = new Set();
-
-        function toggleClass(className) {
-            enabledClasses[className] = document.getElementById(`toggle${className}`).checked;
-            
-            // Remove the class from the timetable if it's disabled
-            if (!enabledClasses[className]) {
-                const classId = `${className}-1`;
+        // ============= EXCEL UPLOAD =============
+        
+        function uploadScheduleData() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.xlsx, .xls, .csv';
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
                 
-                // Remove from timetable
-                document.querySelectorAll(`.placed-class[data-class-id="${classId}"]`).forEach(el => {
-                    const day = el.dataset.day;
-                    const startPeriod = parseInt(el.dataset.startPeriod);
-                    const duration = parseInt(el.dataset.duration);
-                    
-                    for (let i = 0; i < duration; i++) {
-                        const period = startPeriod + i;
-                        const cell = document.querySelector(`td[data-day="${day}"][data-period="${period}"]`);
-                        if (cell) {
-                            const element = cell.querySelector(`.placed-class[data-class-id="${classId}"]`);
-                            if (element) element.remove();
+                reader.onload = function(evt) {
+                    try {
+                        document.getElementById('uploadSection').innerHTML = `
+                            <h2>Načítavam súbor...</h2>
+                            <p>Prosím čakajte</p>
+                        `;
+                        
+                        const data = evt.target.result;
+                        let jsonData;
+                        
+                        if (file.name.endsWith('.csv')) {
+                            const text = new TextDecoder().decode(data);
+                            jsonData = text.split('\n').map(row => row.split(','));
+                        } else {
+                            const workbook = XLSX.read(data, { type: 'binary' });
+                            const sheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[sheetName];
+                            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                         }
+                        
+                        processExcelData(jsonData);
+                    } catch (error) {
+                        console.error(error);
+                        alert('Chyba pri načítaní súboru.');
+                        resetUploadSection();
                     }
-                });
+                };
                 
-                usedClasses.delete(classId);
+                if (file.name.endsWith('.csv')) {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsBinaryString(file);
+                }
+            };
+            
+            fileInput.click();
+        }
+
+        function processExcelData(rows) {
+            // Reset
+            subjects = {};
+            allowedSlots = {};
+            lockedLectures = [];
+            usedSubjects.clear();
+            enabledSubjects = {};
+            
+            // Najdenie stĺpcov
+            let dayCol = 0, startCol = 1, subjectCol = 3, actionCol = 4, roomCol = 5, teacherCol = 6, capacityCol = 8;
+            
+            for (let i = 0; i < Math.min(5, rows.length); i++) {
+                const row = rows[i];
+                if (!row) continue;
+                for (let j = 0; j < row.length; j++) {
+                    const cell = row[j] ? row[j].toString().toLowerCase() : '';
+                    if (cell.includes('deň') || cell.includes('den')) dayCol = j;
+                    if (cell.includes('od') || cell.includes('čas')) startCol = j;
+                    if (cell.includes('predmet')) subjectCol = j;
+                    if (cell.includes('akcia')) actionCol = j;
+                    if (cell.includes('miestnosť')) roomCol = j;
+                    if (cell.includes('vyučujúci')) teacherCol = j;
+                    if (cell.includes('kapacita')) capacityCol = j;
+                }
             }
             
-            // Rebuild the timetable to update the locked lecture
+            // Spracovanie dát
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length < 2) continue;
+                
+                const day = row[dayCol];
+                let startTime = row[startCol];
+                const subject = row[subjectCol];
+                const action = row[actionCol] ? row[actionCol].toString() : '';
+                const room = row[roomCol] ? row[roomCol].toString() : '';
+                let teacher = row[teacherCol] ? row[teacherCol].toString() : '';
+                
+                if (!day || !subject) continue;
+                
+                // Mapovanie dňa
+                let mappedDay = null;
+                for (let [key, value] of Object.entries(dayMapping)) {
+                    if (day.toString().includes(key)) {
+                        mappedDay = value;
+                        break;
+                    }
+                }
+                if (!mappedDay) continue;
+                
+                const period = convertTimeToPeriod(startTime);
+                if (period === 0) continue;
+                
+                const subjectName = extractSubjectName(subject);
+                
+                // Formátovanie mena učiteľa - celé meno v správnom poradí
+                let teacherName = 'N/A';
+                if (teacher && teacher !== 'N/A' && teacher !== '') {
+                    const nameParts = teacher.trim().split(' ');
+                    
+                    // Ak je priezvisko prvé (typické pre slovenské Excel exporty)
+                    // Príklad: "Pajkoš Vladimír" -> "Vladimír Pajkoš"
+                    if (nameParts.length >= 2) {
+                        // Predpokladáme formát "Priezvisko Meno"
+                        const surname = nameParts[0];
+                        const firstName = nameParts.slice(1).join(' ');
+                        teacherName = `${firstName} ${surname}`.trim();
+                    } else {
+                        teacherName = teacher;
+                    }
+                    
+                    // Skrátenie ak je príliš dlhé
+                    if (teacherName.length > 18) {
+                        teacherName = teacherName.substring(0, 16) + '...';
+                    }
+                }
+                
+                // Formátovanie miestnosti
+                let roomCode = room || '';
+                if (roomCode.includes('(')) roomCode = roomCode.split('(')[0].trim();
+                roomCode = roomCode.replace('BA-FEI-FEI', '').trim();
+                if (roomCode.startsWith('-')) roomCode = roomCode.substring(1);
+                if (roomCode.length > 8) roomCode = roomCode.substring(0, 8);
+                
+                // Inicializácia predmetu
+                if (!subjects[subjectName]) {
+                    subjects[subjectName] = {
+                        name: subjectName,
+                        teacher: teacherName,
+                        room: roomCode,
+                        enabled: true
+                    };
+                    allowedSlots[subjectName] = [];
+                    enabledSubjects[subjectName] = true;
+                }
+                
+                const isLecture = action.toLowerCase().includes('prednáška') || 
+                                 action.toLowerCase().includes('prednaska');
+                
+                if (isLecture) {
+                    lockedLectures.push({
+                        subjectName: subjectName,
+                        day: mappedDay,
+                        period: period,
+                        teacher: '',
+                        room: roomCode
+                    });
+                } else {
+                    const slotExists = allowedSlots[subjectName].some(slot => 
+                        slot.day === mappedDay && slot.period === period
+                    );
+                    
+                    if (!slotExists) {
+                        allowedSlots[subjectName].push({
+                            day: mappedDay,
+                            period: period,
+                            teacher: teacherName,
+                            room: roomCode
+                        });
+                    }
+                }
+            }
+            
+            // Inicializácia
             initializeTimetable();
+            
+            // Zobrazenie UI
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'flex';
+            document.getElementById('legend').style.display = 'block';
+            document.getElementById('filterSection').style.display = 'block';
+            
+            updateFilters();
+            
+            const subjectCount = Object.keys(subjects).length;
+            const slotCount = Object.values(allowedSlots).reduce((a, b) => a + b.length, 0);
+            
+            document.getElementById('uploadSection').innerHTML = `
+                <h2>Rozvrh úspešne načítaný</h2>
+                <p>${subjectCount} predmetov | ${slotCount} termínov cvičení | ${lockedLectures.length} prednášok</p>
+                <p style="font-size: 14px; margin-top: 10px;">Kliknite sem pre nahratie iného súboru</p>
+            `;
+            
+            document.getElementById('stats').innerHTML = `
+                <span>${subjectCount}</span> predmetov<br>
+                <span>${slotCount}</span> dostupných termínov<br>
+                <span>${lockedLectures.length}</span> prednášok
+            `;
+            
+            updateAvailableClasses();
+        }
+
+        function updateFilters() {
+            const filterGroup = document.getElementById('filterGroup');
+            filterGroup.innerHTML = '';
+            
+            Object.keys(subjects).sort().forEach(subjectName => {
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `filter-${subjectName.replace(/\s+/g, '-')}`;
+                checkbox.checked = enabledSubjects[subjectName] !== false;
+                checkbox.onchange = function(e) {
+                    enabledSubjects[subjectName] = e.target.checked;
+                    if (!e.target.checked) {
+                        document.querySelectorAll(`.placed-class[data-subject="${subjectName}"]`).forEach(el => {
+                            if (!el.classList.contains('locked')) el.remove();
+                        });
+                        usedSubjects.delete(subjectName);
+                    }
+                    updateAvailableClasses();
+                };
+                
+                const label = document.createElement('label');
+                label.htmlFor = `filter-${subjectName.replace(/\s+/g, '-')}`;
+                label.textContent = `${subjectName} (${allowedSlots[subjectName]?.length || 0})`;
+                
+                item.appendChild(checkbox);
+                item.appendChild(label);
+                filterGroup.appendChild(item);
+            });
         }
 
         function initializeTimetable() {
@@ -637,340 +942,394 @@
                 tbody.appendChild(row);
             });
 
-            // Add locked classes based on current settings
-            const lockedSchedule = getLockedSchedule();
-            Object.keys(lockedSchedule).forEach(key => {
-                const [day, period] = key.split('-');
-                lockedSchedule[key].forEach(cls => {
-                    addClassToCell(day, parseInt(period), cls);
+            // Pridanie prednášok
+            lockedLectures.forEach(lecture => {
+                addClassToCell(lecture.day, lecture.period, {
+                    id: `lecture-${lecture.subjectName}-${lecture.period}`,
+                    name: lecture.subjectName,
+                    teacher: '',
+                    code: lecture.room,
+                    locked: true,
+                    subjectName: lecture.subjectName
                 });
             });
-
-            updateAvailableClasses();
         }
 
         function updateAvailableClasses() {
             const classList = document.getElementById('classList');
             classList.innerHTML = '';
-
-            availableClasses.forEach(cls => {
+            
+            const availableSubjects = Object.keys(subjects)
+                .filter(name => enabledSubjects[name] !== false)
+                .filter(name => !usedSubjects.has(name))
+                .sort();
+            
+            document.getElementById('subjectCount').textContent = availableSubjects.length;
+            
+            if (availableSubjects.length === 0) {
+                document.getElementById('noSubjects').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('noSubjects').style.display = 'none';
+            
+            availableSubjects.forEach(subjectName => {
+                const subject = subjects[subjectName];
+                const availableSlots = allowedSlots[subjectName]?.length || 0;
+                
                 const item = document.createElement('div');
                 item.className = 'class-item';
+                item.dataset.subject = subjectName;
                 item.draggable = true;
-                item.dataset.classId = cls.id;
                 
-                // Check if class is disabled due to toggle
-                const isDisabled = !enabledClasses[cls.type];
+                let teacher = subject.teacher && subject.teacher !== 'N/A' ? subject.teacher : 'Rôzni';
+                let room = subject.room || '';
                 
-                if (usedClasses.has(cls.id)) {
-                    item.classList.add('used');
-                    item.draggable = false;
-                } else if (isDisabled) {
-                    item.classList.add('disabled');
-                    item.draggable = false;
-                }
-
                 item.innerHTML = `
-                    <strong>${cls.name}</strong><br>
-                    ${cls.teacher}<br>
-                    <small>${cls.code}</small>
+                    <strong>${subjectName}</strong>
+                    <div class="teacher">${teacher}</div>
+                    ${room ? `<div class="room">${room}</div>` : ''}
+                    <div class="used-badge" style="display: none;">Umiestnené</div>
                 `;
 
-                if (!isDisabled) {
-                    item.addEventListener('dragstart', handleDragStart);
-                    item.addEventListener('dragend', handleDragEnd);
-                }
+                item.addEventListener('dragstart', function(e) {
+                    if (usedSubjects.has(subjectName)) {
+                        e.preventDefault();
+                        return;
+                    }
+                    this.classList.add('dragging');
+                    draggedItem = this;
+                    e.dataTransfer.setData('text/plain', subjectName);
+                    e.dataTransfer.effectAllowed = 'move';
+                    highlightAllowedSlots(subjectName);
+                });
+
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    draggedItem = null;
+                    clearHighlighting();
+                });
 
                 classList.appendChild(item);
             });
         }
 
         function addClassToCell(day, startPeriod, classData) {
-            for (let i = 0; i < classData.duration; i++) {
+            const timeRange = formatTimeRange(startPeriod);
+            
+            for (let i = 0; i < 2; i++) {
                 const period = startPeriod + i;
                 const cell = document.querySelector(`td[data-day="${day}"][data-period="${period}"]`);
-                if (!cell) {
-                    console.error('Cell not found for:', day, period);
-                    continue;
-                }
+                if (!cell) continue;
                 
                 const cellContent = cell.querySelector('.cell-content');
-                if (!cellContent) {
-                    console.error('Cell content not found for:', day, period);
-                    continue;
-                }
+                if (!cellContent) continue;
                 
                 const placedClass = document.createElement('div');
                 placedClass.className = 'placed-class';
                 
-                if (i === 0) {
-                    placedClass.classList.add('span-start');
-                } else {
-                    placedClass.classList.add('span-continue');
-                }
+                if (i === 0) placedClass.classList.add('span-start');
+                else placedClass.classList.add('span-continue');
                 
                 if (classData.locked) {
                     placedClass.classList.add('locked');
+                    placedClass.style.background = FEI_BLUE;
+                    placedClass.style.borderLeftColor = FEI_DARK_BLUE;
+                    placedClass.draggable = false;
+                } else {
+                    placedClass.style.background = FEI_LIGHT_BLUE;
+                    placedClass.style.borderLeftColor = FEI_BLUE;
+                    placedClass.draggable = true;
+                    
+                    placedClass.addEventListener('dragstart', function(e) {
+                        this.classList.add('dragging');
+                        draggedItem = this;
+                        e.dataTransfer.setData('text/plain', classData.subjectName);
+                        e.dataTransfer.setData('sourceId', classData.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        highlightAllowedSlots(classData.subjectName);
+                    });
+                    
+                    placedClass.addEventListener('dragend', function(e) {
+                        this.classList.remove('dragging');
+                        draggedItem = null;
+                        clearHighlighting();
+                    });
                 }
-                placedClass.draggable = !classData.locked;
-                placedClass.dataset.classId = classData.id || '';
+                
+                placedClass.dataset.subject = classData.subjectName;
                 placedClass.dataset.day = day;
                 placedClass.dataset.startPeriod = startPeriod;
-                placedClass.dataset.duration = classData.duration;
+                placedClass.dataset.id = classData.id;
                 
-                placedClass.innerHTML = `
-                    <strong>${classData.name}</strong>
-                    ${classData.teacher ? `<div class="teacher">${classData.teacher}</div>` : ''}
-                    ${classData.code ? `<div class="teacher">${classData.code}</div>` : ''}
-                    ${!classData.locked && i === 0 ? '<button class="remove-btn" onclick="removeClass(this)">×</button>' : ''}
-                `;
-
-                if (!classData.locked) {
-                    placedClass.addEventListener('dragstart', handlePlacedClassDragStart);
-                    placedClass.addEventListener('dragend', handleDragEnd);
+                if (i === 0) {
+                    placedClass.innerHTML = `
+                        <strong>${classData.name}</strong>
+                        <div class="teacher">${classData.teacher}</div>
+                        ${classData.code ? `<div class="time-info">${classData.code}</div>` : ''}
+                        <div class="time-info">${timeRange}</div>
+                        ${!classData.locked ? '<button class="remove-btn" onclick="removeClass(this, \'' + classData.subjectName + '\')">×</button>' : ''}
+                    `;
                 }
 
                 cellContent.appendChild(placedClass);
             }
         }
 
-        function handleDragStart(e) {
-            if (e.target.classList.contains('used') || e.target.classList.contains('disabled')) {
-                e.preventDefault();
-                return;
-            }
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', e.target.dataset.classId);
-            e.dataTransfer.setData('source', 'list');
-            
-            const classId = e.target.dataset.classId;
-            highlightAllowedSlots(classId);
-        }
-
-        function handlePlacedClassDragStart(e) {
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', e.target.dataset.classId);
-            e.dataTransfer.setData('source', 'table');
-            e.dataTransfer.setData('sourceCell', `${e.target.closest('td').dataset.day}-${e.target.closest('td').dataset.period}`);
-            
-            const classId = e.target.dataset.classId;
-            highlightAllowedSlots(classId);
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            clearHighlighting();
-        }
-        
-        function highlightAllowedSlots(classId) {
-            const allowed = allowedSlots[classId] || [];
-            
-            document.querySelectorAll('td[data-day]').forEach(cell => {
-                const day = cell.dataset.day;
-                const period = parseInt(cell.dataset.period);
-                
-                const isPartOfAllowed = allowed.some(slot => 
-                    slot[0] === day && period >= slot[1] && period < slot[1] + 2
-                );
-                
-                if (isPartOfAllowed) {
-                    cell.classList.add('allowed');
-                } else {
-                    cell.classList.add('not-allowed');
-                }
-            });
-        }
-        
-        function clearHighlighting() {
-            document.querySelectorAll('td[data-day]').forEach(cell => {
-                cell.classList.remove('allowed', 'not-allowed');
-            });
-        }
-
         function setupDropZone(cell) {
-            cell.addEventListener('dragover', (e) => {
+            cell.addEventListener('dragover', function(e) {
                 e.preventDefault();
-                cell.classList.add('drag-over');
+                this.classList.add('drag-over');
             });
 
-            cell.addEventListener('dragleave', () => {
-                cell.classList.remove('drag-over');
+            cell.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
             });
 
-            cell.addEventListener('drop', (e) => {
+            cell.addEventListener('drop', function(e) {
                 e.preventDefault();
-                cell.classList.remove('drag-over');
-
-                const classId = e.dataTransfer.getData('text/plain');
-                const source = e.dataTransfer.getData('source');
+                this.classList.remove('drag-over');
                 
-                const targetDay = cell.dataset.day;
-                const targetPeriod = parseInt(cell.dataset.period);
+                const subjectName = e.dataTransfer.getData('text/plain');
+                if (!subjectName) return;
+                
+                const targetDay = this.dataset.day;
+                const targetPeriod = parseInt(this.dataset.period);
+                const sourceId = e.dataTransfer.getData('sourceId');
+                
+                // 1. URČENIE ZAČIATKU BLOKU
+                // Nepárne čísla (1,3,5,7,9,11) = začiatok bloku
+                // Párne čísla (2,4,6,8,10,12) = koniec bloku
+                let startPeriod;
+                if (targetPeriod % 2 === 0) {
+                    startPeriod = targetPeriod - 1; // Drop na konci -> začiatok je o 1 menej
+                } else {
+                    startPeriod = targetPeriod;      // Drop na začiatku -> toto je začiatok
+                }
+                
+                console.log(`Drop na ${targetPeriod} -> Začiatok bloku: ${startPeriod}`);
+                
+                // 2. KONTROLA PREDMETU
+                if (!subjects[subjectName] || enabledSubjects[subjectName] === false) {
+                    alert(`Predmet "${subjectName}" je vypnutý.`);
+                    return;
+                }
+                
+                const isAllowed = allowedSlots[subjectName]?.some(slot => {
+                    return slot.day === targetDay && 
+                        (targetPeriod === slot.period || targetPeriod === slot.period + 1);
+                });
 
-                if (source === 'list') {
-                    const classData = availableClasses.find(c => c.id === classId);
-                    
-                    // Check if class is enabled
-                    if (!enabledClasses[classData.type]) {
-                        alert(`${classData.name} je momentálne vypnutý. Povoľte ho pomocou prepínača vyššie.`);
+                if (!isAllowed) {
+                    console.log('Nepovolený termín:', targetDay, targetPeriod);
+                    console.log('Povolené pre', subjectName, ':', allowedSlots[subjectName]);
+                    alert('Tento termín nie je povolený pre vybraný predmet.');
+                    return;
+                }
+                
+                // 4. KONTROLA VOĽNOSTI CELÉHO BLOKU
+                const startCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod}"]`);
+                const endCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod + 1}"]`);
+                
+                if (!startCell || !endCell) {
+                    alert('Chyba rozvrhu - chýbajú bunky!');
+                    return;
+                }
+                
+                // Zistenie či sú bunky obsadené
+                const startOccupied = startCell.querySelectorAll('.placed-class:not(.span-continue)').length > 0;
+                const endOccupied = endCell.querySelectorAll('.placed-class:not(.span-continue)').length > 0;
+                
+                // Ak presúvame existujúci predmet, skontrolujeme či je to ten istý
+                let isSameInstance = false;
+                if (sourceId) {
+                    const sameInStart = startCell.querySelector(`.placed-class[data-id="${sourceId}"]`);
+                    const sameInEnd = endCell.querySelector(`.placed-class[data-id="${sourceId}"]`);
+                    isSameInstance = !!(sameInStart || sameInEnd);
+                }
+                
+                // Ak to NIE JE ten istý predmet a blok je obsadený -> chyba
+                if (!isSameInstance) {
+                    if (startOccupied || endOccupied) {
+                        alert('Tento termín je už obsadený!');
                         return;
-                    }
-                    
-                    const allowed = allowedSlots[classId] || [];
-                    const isAllowed = allowed.some(slot => 
-                        slot[0] === targetDay && slot[1] === targetPeriod
-                    );
-                    
-                    if (!isAllowed) {
-                        alert(`${classData.name} nemôže byť umiestnený v tomto časovom slote!`);
-                        return;
-                    }
-                    
-                    for (let i = 0; i < classData.duration; i++) {
-                        const checkPeriod = targetPeriod + i;
-                        const checkCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${checkPeriod}"]`);
-                        if (!checkCell) {
-                            alert('Nie je dostatok následných slotov!');
-                            return;
-                        }
-                        const existingClasses = checkCell.querySelectorAll('.placed-class');
-                        if (existingClasses.length > 0) {
-                            alert('Jeden alebo viac požadovaných slotov je už obsadený!');
-                            return;
-                        }
-                    }
-                    
-                    if (classData && !usedClasses.has(classId)) {
-                        addClassToCell(targetDay, targetPeriod, classData);
-                        usedClasses.add(classId);
-                        updateAvailableClasses();
-                    }
-                } else if (source === 'table') {
-                    const draggedElement = document.querySelector('.dragging');
-                    
-                    if (draggedElement && !draggedElement.classList.contains('locked')) {
-                        const classId = draggedElement.dataset.classId;
-                        const classData = availableClasses.find(c => c.id === classId);
-                        const oldDay = draggedElement.dataset.day;
-                        const oldStartPeriod = parseInt(draggedElement.dataset.startPeriod);
-                        
-                        const allowed = allowedSlots[classId] || [];
-                        const isAllowed = allowed.some(slot => 
-                            slot[0] === targetDay && slot[1] === targetPeriod
-                        );
-                        
-                        if (!isAllowed) {
-                            alert(`${classData.name} nemôže byť umiestnený v tomto časovom slote!`);
-                            return;
-                        }
-                        
-                        for (let i = 0; i < classData.duration; i++) {
-                            const checkPeriod = targetPeriod + i;
-                            const checkCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${checkPeriod}"]`);
-                            if (!checkCell) {
-                                alert('Nie je dostatok následných slotov!');
-                                return;
-                            }
-                            const existingClasses = Array.from(checkCell.querySelectorAll('.placed-class'));
-                            const otherClasses = existingClasses.filter(el => 
-                                el.dataset.classId !== classId
-                            );
-                            if (otherClasses.length > 0) {
-                                alert('Jeden alebo viac požadovaných slotov je už obsadený!');
-                                return;
-                            }
-                        }
-                        
-                        for (let i = 0; i < classData.duration; i++) {
-                            const oldPeriod = oldStartPeriod + i;
-                            const oldCell = document.querySelector(`td[data-day="${oldDay}"][data-period="${oldPeriod}"]`);
-                            if (oldCell) {
-                                const oldElement = oldCell.querySelector(`.placed-class[data-class-id="${classId}"]`);
-                                if (oldElement) oldElement.remove();
-                            }
-                        }
-                        
-                        addClassToCell(targetDay, targetPeriod, classData);
                     }
                 }
+                
+                // 5. ODSTRÁNENIE STARÉHO UMIESTNENIA (ak presúvame)
+                if (sourceId) {
+                    document.querySelectorAll(`.placed-class[data-id="${sourceId}"]`).forEach(el => {
+                        el.remove();
+                    });
+                } else {
+                    // Nový predmet - označíme ako použitý
+                    usedSubjects.add(subjectName);
+                }
+                
+                // 6. UMIESTNENIE DO BLOKU
+                const slotInfo = allowedSlots[subjectName].find(s => s.day === targetDay && s.period === startPeriod) || {};
+                const newId = sourceId || `${subjectName}-${Date.now()}`;
+                
+                // Pridáme do OBOCH buniek bloku
+                for (let i = 0; i < 2; i++) {
+                    const period = startPeriod + i;
+                    const cell = document.querySelector(`td[data-day="${targetDay}"][data-period="${period}"]`);
+                    if (!cell) continue;
+                    
+                    const cellContent = cell.querySelector('.cell-content');
+                    if (!cellContent) continue;
+                    
+                    // Odstránenie starého inštancie ak existuje (pre istotu)
+                    const existing = cellContent.querySelector(`.placed-class[data-id="${newId}"]`);
+                    if (existing) existing.remove();
+                    
+                    const placedClass = document.createElement('div');
+                    placedClass.className = 'placed-class';
+                    
+                    if (i === 0) {
+                        placedClass.classList.add('span-start');
+                        placedClass.innerHTML = `
+                            <strong>${subjectName}</strong>
+                            <div class="teacher">${slotInfo.teacher || subjects[subjectName].teacher}</div>
+                            <div class="time-info">${slotInfo.room || ''}</div>
+                            <div class="time-info">${formatTimeRange(startPeriod)}</div>
+                            <button class="remove-btn" onclick="removeClass(this, '${subjectName}')">×</button>
+                        `;
+                    } else {
+                        placedClass.classList.add('span-continue');
+                        placedClass.innerHTML = '&nbsp;';
+                    }
+                    
+                    placedClass.style.background = FEI_LIGHT_BLUE;
+                    placedClass.style.borderLeftColor = FEI_BLUE;
+                    placedClass.dataset.subject = subjectName;
+                    placedClass.dataset.day = targetDay;
+                    placedClass.dataset.startPeriod = startPeriod;
+                    placedClass.dataset.id = newId;
+                    
+                    // DRAG PRE PRESUNUTIE
+                    placedClass.draggable = true;
+                    placedClass.addEventListener('dragstart', function(e) {
+                        this.classList.add('dragging');
+                        draggedItem = this;
+                        e.dataTransfer.setData('text/plain', subjectName);
+                        e.dataTransfer.setData('sourceId', newId);
+                        e.dataTransfer.effectAllowed = 'move';
+                        highlightAllowedSlots(subjectName);
+                    });
+                    
+                    placedClass.addEventListener('dragend', function(e) {
+                        this.classList.remove('dragging');
+                        draggedItem = null;
+                        clearHighlighting();
+                    });
+                    
+                    cellContent.appendChild(placedClass);
+                }
+                
+                updateAvailableClasses();
+                clearHighlighting();
             });
         }
 
-        function removeClass(btn) {
+        function removeClass(btn, subjectName) {
             const placedClass = btn.closest('.placed-class');
-            const classId = placedClass.dataset.classId;
             const day = placedClass.dataset.day;
             const startPeriod = parseInt(placedClass.dataset.startPeriod);
-            const duration = parseInt(placedClass.dataset.duration);
             
-            for (let i = 0; i < duration; i++) {
+            for (let i = 0; i < 2; i++) {
                 const period = startPeriod + i;
                 const cell = document.querySelector(`td[data-day="${day}"][data-period="${period}"]`);
                 if (cell) {
-                    const element = cell.querySelector(`.placed-class[data-class-id="${classId}"]`);
+                    const element = cell.querySelector(`.placed-class[data-subject="${subjectName}"]`);
                     if (element) element.remove();
                 }
             }
             
-            if (classId) {
-                usedClasses.delete(classId);
-                updateAvailableClasses();
-            }
+            usedSubjects.delete(subjectName);
+            updateAvailableClasses();
+            clearHighlighting();
+        }
+
+        function highlightAllowedSlots(subjectName) {
+            const allowed = allowedSlots[subjectName] || [];
+            
+            // Najprv VŠETKY bunky označíme ako not-allowed
+            document.querySelectorAll('td[data-day]').forEach(cell => {
+                cell.classList.remove('allowed', 'not-allowed', 'slot-start', 'slot-end');
+                cell.classList.add('not-allowed');
+            });
+            
+            // Pre každý povolený blok zvýrazníme OBE bunky
+            allowed.forEach(slot => {
+                const startCell = document.querySelector(`td[data-day="${slot.day}"][data-period="${slot.period}"]`);
+                const endCell = document.querySelector(`td[data-day="${slot.day}"][data-period="${slot.period + 1}"]`);
+                
+                if (startCell) {
+                    startCell.classList.remove('not-allowed');
+                    startCell.classList.add('allowed', 'slot-start');
+                }
+                if (endCell) {
+                    endCell.classList.remove('not-allowed');
+                    endCell.classList.add('allowed', 'slot-end');
+                }
+            });
+        }
+
+        function clearHighlighting() {
+            document.querySelectorAll('td[data-day]').forEach(cell => {
+                cell.classList.remove('allowed', 'not-allowed', 'drag-over');
+            });
         }
 
         function clearMovableClasses() {
-            if (!confirm('Ste si istí, že chcete vymazať všetky presunuteľné hodiny?')) return;
-
+            if (!confirm('Vymazať všetky umiestnené cvičenia?')) return;
             document.querySelectorAll('.placed-class:not(.locked)').forEach(el => el.remove());
-            usedClasses.clear();
+            usedSubjects.clear();
+            updateAvailableClasses();
+            clearHighlighting();
+        }
+
+        function enableAllSubjects() {
+            Object.keys(subjects).forEach(s => enabledSubjects[s] = true);
+            updateFilters();
             updateAvailableClasses();
         }
 
-        function resetToDefault() {
-            if (!confirm('Ste si istí, že chcete resetovať na predvolené nastavenia?')) return;
-            usedClasses.clear();
-            enabledClasses = {'DV': false,'PIOT': false,'RRM': true,'SP': true,'UMINT': true,'PE': true,'OPK': false};
-            document.getElementById('toggleDV').checked = false;
-            document.getElementById('togglePIOT').checked = false;
-            initializeTimetable();
+        function resetSchedule() {
+            if (!confirm('Resetovať rozvrh?')) return;
+            usedSubjects.clear();
+            document.querySelectorAll('.placed-class:not(.locked)').forEach(el => el.remove());
+            Object.keys(subjects).forEach(s => enabledSubjects[s] = true);
+            updateFilters();
+            updateAvailableClasses();
+            clearHighlighting();
+        }
+
+        function resetUploadSection() {
+            document.getElementById('uploadSection').innerHTML = `
+                <h2>Nahrať Excel súbor s rozvrhom</h2>
+                <p>Kliknite sem pre výber súboru (.xlsx, .xls, .csv)</p>
+            `;
         }
 
         function exportSchedule() {
             const timetable = document.getElementById('timetable');
             timetable.classList.add('pdf-export');
-
-            const opt = {
-
-            filename: 'rozvrh.pdf',
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: {
-                scale: 2,
-                scrollX: 0,
-                scrollY: 0,
-                windowWidth: timetable.scrollWidth 
-            },
-            jsPDF: {
-                unit: 'mm',
-                format: 'a3', 
-                orientation: 'landscape'
-            }
-        };
-
-        html2pdf()
-            .set(opt)
-            .from(timetable)
-            .save()
-            .then(() => {
+            html2pdf().set({
+                filename: 'rozvrh-fei-stu.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
+            }).from(timetable).save().then(() => {
                 timetable.classList.remove('pdf-export');
             });
         }
 
-        // Initialize on load
+        // Inicializácia
         initializeTimetable();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 </body>
 </html>
