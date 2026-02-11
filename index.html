@@ -380,6 +380,10 @@
                     <input type="checkbox" id="togglePIOT" onchange="toggleClass('PIOT')">
                     <label for="togglePIOT">PIOT (Priemyselný IoT)</label>
                 </div>
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggleOPK" onchange="toggleClass('OPK')">
+                    <label for="toggleOPK">OPK (Objektovo orientované programovanie v kybernetike)</label>
+                </div>
             </div>
         </div>
 
@@ -438,7 +442,10 @@
             'PIOT': false,
             'RRM': true,
             'SP': true,
-            'UMINT': true
+            'UMINT': true,
+            'PE': true,
+            'OPK': false
+            
         };
 
         // Define all classes
@@ -446,29 +453,60 @@
             { id: 'RRM-1', name: 'RRM', teacher: 'BABINEC', code: '79/7 D619', locked: false, duration: 2, type: 'RRM' },
             { id: 'SP-1', name: 'SP', teacher: 'MIKLOVIČOVÁ', code: '75/8 D301', locked: false, duration: 2, type: 'SP' },
             { id: 'UMINT-1', name: 'UMINT', teacher: 'SEKAJ', code: '70/7(4) D712/D710', locked: false, duration: 2, type: 'UMINT' },
+            { id: 'PE-1', name: 'TELESNÁ KULTÚRA', teacher: 'N/A', code: 'N/A', locked: false, duration: 2, type: 'PE' },
             { id: 'DV-1', name: 'DV', teacher: 'KÖRÖSI', code: '5/1 D301', locked: false, duration: 2, type: 'DV' },
-            { id: 'PIOT-1', name: 'PIOT', teacher: 'MRAFKO', code: '60/6 D328', locked: false, duration: 2, type: 'PIOT' }
+            { id: 'PIOT-1', name: 'PIOT', teacher: 'MRAFKO', code: '60/6 D328', locked: false, duration: 2, type: 'PIOT' },
+            { id: 'OPK-1', name: 'OPK', teacher: 'TÖLGYESSY', code: 'N/A', locked: false, duration: 2, type: 'OPK' }
         ];
 
-        // Function to get locked schedule based on enabled classes
         function getLockedSchedule() {
             const schedule = {
                 'PONDELOK-4': [{ name: 'SP', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
                 'UTOROK-4': [{ name: 'UMINT', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
-                'ŠTVRTOK-4': [{ name: 'RRM', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }]
+                'ŠTVRTOK-4': [{ name: 'RRM', teacher: 'Prednáška', code: '10:00-11:50', locked: true, duration: 2 }],
             };
 
-            // Add DV/PIOT lecture based on what's enabled
-            if (enabledClasses['DV'] && enabledClasses['PIOT']) {
+            // ✅ Najprv všetky tri
+            if (enabledClasses['DV'] && enabledClasses['PIOT'] && enabledClasses['OPK']) {
+                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
                 schedule['PONDELOK-7'] = [{ name: 'DV/PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            } else if (enabledClasses['DV']) {
+            }
+
+            // DV + PIOT
+            else if (enabledClasses['DV'] && enabledClasses['PIOT']) {
+                schedule['PONDELOK-7'] = [{ name: 'DV/PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
+            }
+
+            // DV + OPK
+            else if (enabledClasses['DV'] && enabledClasses['OPK']) {
+                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
                 schedule['PONDELOK-7'] = [{ name: 'DV', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
-            } else if (enabledClasses['PIOT']) {
+            }
+
+            // OPK + PIOT
+            else if (enabledClasses['OPK'] && enabledClasses['PIOT']) {
+                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
                 schedule['PONDELOK-7'] = [{ name: 'PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
+            }
+
+            // Len DV
+            else if (enabledClasses['DV']) {
+                schedule['PONDELOK-7'] = [{ name: 'DV', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
+            }
+
+            // Len PIOT
+            else if (enabledClasses['PIOT']) {
+                schedule['PONDELOK-7'] = [{ name: 'PIOT', teacher: 'Prednáška', code: '13:00-14:50', locked: true, duration: 2 }];
+            }
+
+            // Len OPK
+            else if (enabledClasses['OPK']) {
+                schedule['PONDELOK-2'] = [{ name: 'OPK', teacher: 'Prednáška', code: '8:00-9:50', locked: true, duration: 2 }];
             }
 
             return schedule;
         }
+
 
         const allowedSlots = {
             'RRM-1': [
@@ -493,7 +531,12 @@
             'UMINT-1': [
                 ['UTOROK', 9, 10],
                 ['STREDA', 7, 8],
-                ['STREDA', 9, 10]
+                ['STREDA', 9, 10],
+                ['STREDA', 11, 12],
+                ['ŠTVRTOK', 4, 5],
+                ['PIATOK', 2, 3],
+                ['PIATOK', 4, 5],
+                ['PIATOK', 6, 7],
             ],
             'DV-1': [
                 ['PONDELOK', 9, 10]
@@ -502,8 +545,35 @@
                 ['UTOROK', 7, 8],
                 ['UTOROK', 9, 10],
                 ['UTOROK', 11, 12],
+                ['STREDA', 2, 3],
                 ['STREDA', 4, 5],
                 ['STREDA', 7, 8]
+            ],
+            'OPK-1': [
+                ['STREDA', 4, 5],
+                ['STREDA', 7, 8],
+                ['ŠTVRTOK', 4, 5],
+                ['ŠTVRTOK', 7, 8],
+                ['ŠTVRTOK', 9, 10]
+            ],
+            'PE-1': [
+                ['PONDELOK', 1, 2],
+                ['PONDELOK', 3, 4],
+                ['PONDELOK', 5, 6],
+                ['PONDELOK', 7, 8],
+                ['PONDELOK', 9, 10],
+                ['UTOROK', 1, 2],
+                ['UTOROK', 3, 4],
+                ['UTOROK', 5, 6],
+                ['UTOROK', 7, 8],
+                ['STREDA', 1, 2],
+                ['STREDA', 3, 4],
+                ['STREDA', 5, 6],
+                ['STREDA', 7, 8],
+                ['ŠTVRTOK', 1, 2],
+                ['ŠTVRTOK', 3, 4],
+                ['ŠTVRTOK', 5, 6],
+                ['ŠTVRTOK', 7, 8]
             ]
         };
 
@@ -861,7 +931,7 @@
         function resetToDefault() {
             if (!confirm('Ste si istí, že chcete resetovať na predvolené nastavenia?')) return;
             usedClasses.clear();
-            enabledClasses = {'DV': false,'PIOT': false,'RRM': true,'SP': true,'UMINT': true};
+            enabledClasses = {'DV': false,'PIOT': false,'RRM': true,'SP': true,'UMINT': true,'PE': true,'OPK': false};
             document.getElementById('toggleDV').checked = false;
             document.getElementById('togglePIOT').checked = false;
             initializeTimetable();
