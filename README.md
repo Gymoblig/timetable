@@ -7,7 +7,7 @@
 
 **Interaktívny rozvrh FEI STU** je webová aplikácia vytvorená pre študentov a pedagógov Fakulty elektrotechniky a informatiky STU. Umožňuje vizuálne spravovať rozvrh hodín pomocou jednoduchého **drag & drop** rozhrania priamo v prehliadači.
 
-🔗 **Živá ukážka:** `https://vas-username.github.io/fei-stu-rozvrh`
+🔗 **Živá ukážka:** `https://gymoblig.github.io/timetable`
 
 ---
 
@@ -42,6 +42,7 @@ Uložte si hotový rozvrh ako PDF
 ### 📌 Ako exportovať rozvrh z AIS?
 
 [![Export z AIS](https://img.shields.io/badge/▶️%20Sledovať-Export%20z%20AIS-0039A6)](https://www.youtube.com/watch?v=example1)
+https://github.com/Gymoblig/timetable/blob/main/video.mkv
 
 **Krok za krokom:**
 1. Prihláste sa do [AIS STU](https://ais.stuba.sk)
