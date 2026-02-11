@@ -40,9 +40,10 @@ Uložte si hotový rozvrh ako PDF
 ## 🎥 VIDEO NÁVODY
 
 ### 📌 Ako exportovať rozvrh z AIS?
-
-[![Export z AIS](https://img.shields.io/badge/▶️%20Sledovať-Export%20z%20AIS-0039A6)](https://www.youtube.com/watch?v=example1)
-https://github.com/Gymoblig/timetable/blob/main/video.mkv
+<video src="https://github.com/Gymoblig/timetable/raw/main/video.mp4" controls width="100%" style="max-width: 800px;">
+  Váš prehliadač nepodporuje prehrávanie videa.
+  <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">Stiahnuť video</a>
+</video>
 
 **Krok za krokom:**
 1. Prihláste sa do [AIS STU](https://ais.stuba.sk)
@@ -51,14 +52,6 @@ https://github.com/Gymoblig/timetable/blob/main/video.mkv
 4. Vyberte **"Exportovať do Excelu"**
 5. Uložte súbor do počítača
 
-### 📌 Ako exportovať rozvrh pre učiteľov?
-
-[![Export pre učiteľov](https://img.shields.io/badge/▶️%20Sledovať-Export%20pre%20učiteľov-0039A6)](https://www.youtube.com/watch?v=example2)
-
-1. V AIS prejdite na **Pedagogika → Rozvrh hodín**
-2. Vyberte semester a typ rozvrhu
-3. Kliknite na **"Export do Excelu"**
-4. Stiahnite súbor
 
 ### 📌 Univerzálny formát Excelu
 
