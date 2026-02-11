@@ -1107,17 +1107,24 @@
                 const targetPeriod = parseInt(this.dataset.period);
                 const sourceId = e.dataTransfer.getData('sourceId');
                 
-                // 1. URČENIE ZAČIATKU BLOKU
-                // Nepárne čísla (1,3,5,7,9,11) = začiatok bloku
-                // Párne čísla (2,4,6,8,10,12) = koniec bloku
-                let startPeriod;
-                if (targetPeriod % 2 === 0) {
-                    startPeriod = targetPeriod - 1; // Drop na konci -> začiatok je o 1 menej
-                } else {
-                    startPeriod = targetPeriod;      // Drop na začiatku -> toto je začiatok
+                // 1. DYNAMICKÉ URČENIE ZAČIATKU PODĽA EXCEL DÁT
+                const allowed = allowedSlots[subjectName] || [];
+                let startPeriod = null;
+                
+                for (let slot of allowed) {
+                    if (slot.day === targetDay && 
+                        (targetPeriod === slot.period || targetPeriod === slot.period + 1)) {
+                        startPeriod = slot.period;
+                        console.log(`✅ Nájdený blok: ${subjectName} na ${targetDay} ${targetPeriod} → začína ${startPeriod}`);
+                        break;
+                    }
                 }
                 
-                console.log(`Drop na ${targetPeriod} -> Začiatok bloku: ${startPeriod}`);
+                if (startPeriod === null) {
+                    console.log(`❌ Nepovolený termín: ${subjectName} na ${targetDay} ${targetPeriod}`);
+                    alert('Tento termín nie je povolený pre vybraný predmet.');
+                    return;
+                }
                 
                 // 2. KONTROLA PREDMETU
                 if (!subjects[subjectName] || enabledSubjects[subjectName] === false) {
@@ -1125,19 +1132,7 @@
                     return;
                 }
                 
-                const isAllowed = allowedSlots[subjectName]?.some(slot => {
-                    return slot.day === targetDay && 
-                        (targetPeriod === slot.period || targetPeriod === slot.period + 1);
-                });
-
-                if (!isAllowed) {
-                    console.log('Nepovolený termín:', targetDay, targetPeriod);
-                    console.log('Povolené pre', subjectName, ':', allowedSlots[subjectName]);
-                    alert('Tento termín nie je povolený pre vybraný predmet.');
-                    return;
-                }
-                
-                // 4. KONTROLA VOĽNOSTI CELÉHO BLOKU
+                // 3. KONTROLA VOĽNOSTI BLOKU
                 const startCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod}"]`);
                 const endCell = document.querySelector(`td[data-day="${targetDay}"][data-period="${startPeriod + 1}"]`);
                 
@@ -1146,11 +1141,9 @@
                     return;
                 }
                 
-                // Zistenie či sú bunky obsadené
                 const startOccupied = startCell.querySelectorAll('.placed-class:not(.span-continue)').length > 0;
                 const endOccupied = endCell.querySelectorAll('.placed-class:not(.span-continue)').length > 0;
                 
-                // Ak presúvame existujúci predmet, skontrolujeme či je to ten istý
                 let isSameInstance = false;
                 if (sourceId) {
                     const sameInStart = startCell.querySelector(`.placed-class[data-id="${sourceId}"]`);
@@ -1158,29 +1151,22 @@
                     isSameInstance = !!(sameInStart || sameInEnd);
                 }
                 
-                // Ak to NIE JE ten istý predmet a blok je obsadený -> chyba
-                if (!isSameInstance) {
-                    if (startOccupied || endOccupied) {
-                        alert('Tento termín je už obsadený!');
-                        return;
-                    }
+                if (!isSameInstance && (startOccupied || endOccupied)) {
+                    alert('Tento termín je už obsadený!');
+                    return;
                 }
                 
-                // 5. ODSTRÁNENIE STARÉHO UMIESTNENIA (ak presúvame)
+                // 4. ODSTRÁNENIE STARÉHO UMIESTNENIA
                 if (sourceId) {
-                    document.querySelectorAll(`.placed-class[data-id="${sourceId}"]`).forEach(el => {
-                        el.remove();
-                    });
+                    document.querySelectorAll(`.placed-class[data-id="${sourceId}"]`).forEach(el => el.remove());
                 } else {
-                    // Nový predmet - označíme ako použitý
                     usedSubjects.add(subjectName);
                 }
                 
-                // 6. UMIESTNENIE DO BLOKU
-                const slotInfo = allowedSlots[subjectName].find(s => s.day === targetDay && s.period === startPeriod) || {};
+                // 5. UMIESTNENIE DO BLOKU
+                const slotInfo = allowed.find(s => s.day === targetDay && s.period === startPeriod) || {};
                 const newId = sourceId || `${subjectName}-${Date.now()}`;
                 
-                // Pridáme do OBOCH buniek bloku
                 for (let i = 0; i < 2; i++) {
                     const period = startPeriod + i;
                     const cell = document.querySelector(`td[data-day="${targetDay}"][data-period="${period}"]`);
@@ -1188,10 +1174,6 @@
                     
                     const cellContent = cell.querySelector('.cell-content');
                     if (!cellContent) continue;
-                    
-                    // Odstránenie starého inštancie ak existuje (pre istotu)
-                    const existing = cellContent.querySelector(`.placed-class[data-id="${newId}"]`);
-                    if (existing) existing.remove();
                     
                     const placedClass = document.createElement('div');
                     placedClass.className = 'placed-class';
@@ -1217,7 +1199,6 @@
                     placedClass.dataset.startPeriod = startPeriod;
                     placedClass.dataset.id = newId;
                     
-                    // DRAG PRE PRESUNUTIE
                     placedClass.draggable = true;
                     placedClass.addEventListener('dragstart', function(e) {
                         this.classList.add('dragging');
