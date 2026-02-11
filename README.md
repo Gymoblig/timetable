@@ -44,9 +44,10 @@ Uložte si hotový rozvrh ako PDF
   Váš prehliadač nepodporuje prehrávanie videa.
   <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">Stiahnuť video</a>
 </video>
+**📥 Alternatíva:** [Stiahnuť MP4 súbor](https://github.com/Gymoblig/timetable/raw/main/video.mp4)
 
 **Krok za krokom:**
-1. Prihláste sa do [AIS STU](https://ais.stuba.sk)
+1. Prihláste sa do [AIS STU](https://is.stuba.sk)
 2. Prejdite na **Štúdium → Rozvrh → Môj rozvrh**
 3. Kliknite na tlačidlo **"Export"** (ikona Excelu)
 4. Vyberte **"Exportovať do Excelu"**
