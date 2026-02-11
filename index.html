@@ -557,7 +557,16 @@
 
         <div id="uploadSection" class="upload-section" onclick="uploadScheduleData()">
             <h2>Nahrať Excel súbor s rozvrhom</h2>
+            
             <p>Kliknite sem pre výber súboru (.xlsx, .xls, .csv)</p>
+        </div>
+        <div id="videoContainer" align="center">
+                <video src="https://github.com/Gymoblig/timetable/raw/main/video.mp4" controls width="80%">
+                    <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">
+                    <img src="https://img.shields.io/badge/▶️-Prehrať%20video-0039A6?style=for-the-badge">
+                    </a>
+                </video>
+                
         </div>
 
         <div id="controls" class="controls" style="display: none;">
@@ -868,9 +877,10 @@
             
             document.getElementById('uploadSection').innerHTML = `
                 <h2>Rozvrh úspešne načítaný</h2>
-                <p>${subjectCount} predmetov | ${slotCount} termínov cvičení | ${lockedLectures.length} prednášok</p>
+                <p>Počet predmetov: ${subjectCount} | ${slotCount} termínov cvičení | Počet prednášok: ${lockedLectures.length} </p>
                 <p style="font-size: 14px; margin-top: 10px;">Kliknite sem pre nahratie iného súboru</p>
             `;
+            document.getElementById('videoContainer').style.display = 'none';
             
             document.getElementById('stats').innerHTML = `
                 <span>${subjectCount}</span> predmetov<br>
