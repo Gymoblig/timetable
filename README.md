@@ -40,7 +40,7 @@ Uložte si hotový rozvrh ako PDF
 ## 🎥 VIDEO NÁVODY
 
 ### 📌 Ako exportovať rozvrh z AIS?
-<video src="https://github.com/Gymoblig/timetable/raw/main/video.mp4" controls width="100%" style="max-width: 800px;">
+<video src="https://github.com/Gymoblig/timetable/blob/main/video.mp4" controls width="100%" style="max-width: 800px;">
   Váš prehliadač nepodporuje prehrávanie videa.
   <a href="https://github.com/Gymoblig/timetable/raw/main/video.mp4">Stiahnuť video</a>
 </video>
